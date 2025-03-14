@@ -9,7 +9,7 @@ set MESSAGE=Build for test OK
 RMDIR /s /q %BIN_PATH%
 MD "%BIN_PATH%"
 
-clang ^
+clang++ ^
     -I"%APPL_PATH%\include" ^
     -I"%APPL_PATH%\libraries\sdl2\include" ^
     -I"%APPL_PATH%\libraries\sdl2_image\include" ^
@@ -21,7 +21,7 @@ IF %ERRORLEVEL% NEQ 0 (
     GOTO QUIT
 )
 
-clang ^
+clang++ ^
     -I"%PRJ_PATH%\include" ^
     -I"%APPL_PATH%\include" ^
     -I"%APPL_PATH%\libraries\sdl2\include" ^

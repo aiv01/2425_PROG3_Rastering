@@ -6,7 +6,7 @@ set PRJ_PATH=%PRJ_BASE_PATH%\appl
 
 RMDIR /s /q %BIN_PATH%
 MD "%BIN_PATH%"
-clang ^
+clang++ ^
     -I"%PRJ_PATH%\include" ^
     -I"%PRJ_PATH%\libraries\sdl2\include" ^
     -I"%PRJ_PATH%\libraries\sdl2_image\include" ^

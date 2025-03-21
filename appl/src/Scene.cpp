@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "SDL.h"
 #include "Color.h"
-#include "LineRaster.h"
+#include "ShapeRasterizer.h"
 #include "Screen.h"
 
 Scene::Scene(int w, int h, SDL_Renderer* r) 
@@ -10,7 +10,7 @@ Scene::Scene(int w, int h, SDL_Renderer* r)
 
 }
 
-void Scene::Update(float delta_time) 
+void Scene::update(float delta_time) 
 { 
     _screen.clear();
 
@@ -29,12 +29,20 @@ void Scene::Update(float delta_time)
     x2 += (speed * delta_time);
     y2 += (speed * delta_time);
 
-    dda_line_raster((int)x1, (int)y1, (int)x2, (int)y2, red, _screen);
+    ShapeRasterizer::dda_line_raster((int)x1, (int)y1, (int)x2, (int)y2, red, _screen);
+
+    static Color green{0, 255, 0, 255};
+    ShapeRasterizer::bbox_triangle_raster({50, 200}, {150, 200}, {100, 50}, green, _screen);
+
+    //triangle by 3 edges
+    ShapeRasterizer::dda_line_raster(50, 200, 150, 200, red, _screen);
+    ShapeRasterizer::dda_line_raster(50, 200, 100, 50, red, _screen);
+    ShapeRasterizer::dda_line_raster(150, 200, 100, 50, red, _screen);
 
     _screen.blit();
 }
 
-void Scene::Destroy() 
+void Scene::destroy() 
 { 
     _screen.destroy();
 }

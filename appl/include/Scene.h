@@ -6,8 +6,8 @@
 class Scene {
 public:
     Scene(int w, int h, SDL_Renderer* r);
-    void Update(float delta_time);
-    void Destroy();
+    void update(float delta_time);
+    void destroy();
 
 private:
     SDL_Renderer* _renderer;

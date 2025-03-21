@@ -63,12 +63,12 @@ int main() {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
 
-        scene.Update(delta_time);
+        scene.update(delta_time);
 
         SDL_RenderPresent(renderer);
     }
 
-    scene.Destroy();
+    scene.destroy();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);  

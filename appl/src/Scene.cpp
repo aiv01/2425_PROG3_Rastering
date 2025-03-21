@@ -3,11 +3,14 @@
 #include "Color.h"
 #include "ShapeRasterizer.h"
 #include "Screen.h"
+#include "Camera.h"
+#include <iostream>
 
 Scene::Scene(int w, int h, SDL_Renderer* r) 
-    : _renderer(r), _screen(Screen(w, h, r))
+    : _renderer(r), 
+      _screen(Screen(w, h, r)), 
+      _camera(Camera(w, h, 60.f))
 { 
-
 }
 
 void Scene::update(float delta_time) 
@@ -38,6 +41,17 @@ void Scene::update(float delta_time)
     ShapeRasterizer::dda_line_raster(50, 200, 150, 200, red, _screen);
     ShapeRasterizer::dda_line_raster(50, 200, 100, 50, red, _screen);
     ShapeRasterizer::dda_line_raster(150, 200, 100, 50, red, _screen);
+
+    //triangle in world space
+    Vector3f wp1{ 0.f, 0.f, -10.f};
+    Vector3f wp2{-4.f, -4.f, -10.f};
+    Vector3f wp3{ 4.f, -4.f, -10.f};
+
+    Vector2i sp1 = _camera.world_to_screen_space(wp1);
+    Vector2i sp2 = _camera.world_to_screen_space(wp2);
+    Vector2i sp3 = _camera.world_to_screen_space(wp3);
+
+    ShapeRasterizer::bbox_triangle_raster(sp1, sp2, sp3, green, _screen);
 
     _screen.blit();
 }

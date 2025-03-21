@@ -2,6 +2,7 @@
 
 #include "SDL.h"
 #include "Screen.h"
+#include "Camera.h"
 
 class Scene {
 public:
@@ -12,4 +13,5 @@ public:
 private:
     SDL_Renderer* _renderer;
     Screen _screen;
+    Camera _camera;
 };

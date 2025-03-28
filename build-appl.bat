@@ -14,7 +14,8 @@ clang++ ^
     -L"%PRJ_PATH%\libraries\sdl2_image\lib\x64" ^
     -lSDL2 ^
     -lSDL2_image ^
-    -o "%BIN_PATH%\appl.exe" "%PRJ_PATH%\src\*.cpp"
+    -o "%BIN_PATH%\appl.exe" "%PRJ_PATH%\src\*.cpp" ^
+    -std=c++20 
 
 IF %ERRORLEVEL% EQU 0 (
     COPY /Y "%PRJ_PATH%\libraries\sdl2\lib\x64\*.dll" "%BIN_PATH%"

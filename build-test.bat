@@ -14,6 +14,7 @@ clang++ ^
     -I"%APPL_PATH%\libraries\sdl2\include" ^
     -I"%APPL_PATH%\libraries\sdl2_image\include" ^
     -o "%BIN_PATH%\appl.lib" "%APPL_PATH%\src\*.cpp" -fuse-ld=llvm-lib ^
+    -std=c++20 ^
     -D__TEST_BUILD
 
 IF %ERRORLEVEL% NEQ 0 (
@@ -27,7 +28,8 @@ clang++ ^
     -I"%APPL_PATH%\libraries\sdl2\include" ^
     -I"%APPL_PATH%\libraries\sdl2_image\include" ^
     -o "%BIN_PATH%\test.exe" "%PRJ_PATH%\src\*.cpp" ^
-    ^ -L"%BIN_PATH%" -lappl
+    -std=c++20 ^
+    -L"%BIN_PATH%" -lappl
 
 IF %ERRORLEVEL% NEQ 0 (
     set MESSAGE=Failure compiling test

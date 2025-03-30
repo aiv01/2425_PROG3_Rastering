@@ -11,6 +11,9 @@ Camera::Camera(int screen_witdh, int screen_height, float fov)
 Vector2i Camera::world_to_screen_space(Vector3f world_point) {
     Vector3f camera_point = world_point - _position;
 
+    // Clipping check (just points with Z < 0 are rendered by the camera).
+    if (camera_point.z >= 0) return { -1, -1 };
+    
     float plane_x = camera_point.x / -camera_point.z;
     float plane_y = camera_point.y / -camera_point.z;
 

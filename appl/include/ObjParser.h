@@ -61,7 +61,7 @@ public:
     bool TryParseObj(const std::string& objPath, Obj& outObj)
     {
         std::ifstream file(objPath);
-        if (!file.is_open()) return false;
+        if (!file.is_open()) ParserError(outObj);
         std::string line;
         std::vector<Float3> points;
         std::vector<Float2> uvs;
@@ -75,7 +75,7 @@ public:
 
             if(type == "v")
             {
-                if(tokens.size() != 4) return false;
+                if(tokens.size() != 4) return ParserError(outObj);
 
                 Float3 v;
 
@@ -86,7 +86,7 @@ public:
             }
             else if(type == "vt")
             {
-                if(tokens.size() != 4) return false;
+                if(tokens.size() != 3) return ParserError(outObj);
 
                 Float2 vt;
 
@@ -96,7 +96,7 @@ public:
             }
             else if(type == "vn")
             {
-                if(tokens.size() != 4) return false;
+                if(tokens.size() != 4) return ParserError(outObj);
 
                 Float3 vn;
 
@@ -107,8 +107,8 @@ public:
             }
             else if(type == "f")
             {
-                if(tokens.size() != 4) return false;
-                
+                if(tokens.size() != 4) return ParserError(outObj);
+
                 Triangle triangle;
                 Vertex* vertexPointers[] = { &triangle.v1, &triangle.v2, &triangle.v3 };
                 for(size_t i = 0; i < 3; ++i)
@@ -116,11 +116,11 @@ public:
                     auto faceTokens = Tokenizer::Split(tokens[i + 1], '/');
 
                     int pointIndex = std::stoi(faceTokens[0]) - 1;
-                    if (pointIndex < 0 || pointIndex >= points.size()) return false;
+                    if (pointIndex < 0 || pointIndex >= points.size()) return ParserError(outObj);
                     int uvIndex = std::stoi(faceTokens[1]) - 1;
-                    if(uvIndex < 0 || uvIndex >= uvs.size()) return false;
+                    if(uvIndex < 0 || uvIndex >= uvs.size()) return ParserError(outObj);
                     int normalIndex = std::stoi(faceTokens[2]) - 1;
-                    if(normalIndex < 0 || normalIndex >= normals.size()) return false;
+                    if(normalIndex < 0 || normalIndex >= normals.size())return ParserError(outObj);
 
                     vertexPointers[i]->point = points[pointIndex];
                     vertexPointers[i]->uv = uvs[uvIndex];
@@ -136,4 +136,11 @@ public:
 
 private:
 
+    bool ParserError(Obj& objToClear)
+    {
+
+        objToClear.triangles.clear();
+        return false;
+
+    }
 };

@@ -85,7 +85,7 @@ CLOVE_TEST(ParseQuadObj){
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v2.point.z);
 
    CLOVE_FLOAT_EQ(1.000000, obj.triangles[1].v2.uv.x);
-   CLOVE_FLOAT_EQ(0.000000, obj.triangles[0].v2.uv.y);
+   CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v2.uv.y);
 
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v2.normal.x);
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v2.normal.y);
@@ -97,7 +97,7 @@ CLOVE_TEST(ParseQuadObj){
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v3.point.z);
 
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v3.uv.x);
-   CLOVE_FLOAT_EQ(1.000000, obj.triangles[0].v3.uv.y);
+   CLOVE_FLOAT_EQ(1.000000, obj.triangles[1].v3.uv.y);
 
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v3.normal.x);
    CLOVE_FLOAT_EQ(0.000000, obj.triangles[1].v3.normal.y);

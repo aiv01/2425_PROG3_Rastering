@@ -14,10 +14,7 @@ struct Float3
     float b;
     float c;
 
-    bool operator==(const Float3& other) const
-    {
-        return a == other.a && b == other.b && c == other.c; 
-    }
+    bool operator==(const Float3& other) const;
 };
 
 struct Float2
@@ -25,10 +22,7 @@ struct Float2
     float a;
     float b;
 
-    bool operator==(const Float2& other) const
-    {
-        return a == other.a && b == other.b;
-    }
+    bool operator==(const Float2& other) const;
 };
 
 class Tokenizer
@@ -55,10 +49,7 @@ struct Vertex
     Float3 normal;
     Float2 uv;
 
-    bool operator==(const Vertex& other) const
-    {
-        return position == other.position && normal == other.normal && uv == other.uv;
-    }
+    bool operator==(const Vertex& other) const;
 };
 
 struct Triangle
@@ -67,10 +58,7 @@ struct Triangle
     Vertex v2;
     Vertex v3;
 
-    bool operator==(const Triangle& other) const 
-    {
-        return v1 == other.v1 && v2 == other.v2 && v3 == other.v3;
-    }
+    bool operator==(const Triangle& other) const;
 };
 
 struct Obj
@@ -81,73 +69,97 @@ struct Obj
 class ObjParser
 {
 public:
-    bool TryParseObj(const std::string& objPath, Obj& outObj)
-    {
-        std::ifstream file(objPath);
-        if(!file.is_open()) return false;
-
-        std::vector<Float3> vertexes;
-        std::vector<Float2> uvs;
-        std::vector<Float3> normals;
-
-        std::string line;
-
-        while(std::getline(file, line))
-        {
-            if(line.starts_with(VERTEX_PREFIX))
-            {
-                auto tokens = Tokenizer::Split(line, ' ');
-                Float3 v;
-                v.a = std::stof(tokens[1]);
-                v.b = std::stof(tokens[2]);
-                v.c = std::stof(tokens[3]);
-
-                vertexes.push_back(v);
-            }
-            else if(line.starts_with(UV_PREFIX))
-            {
-                auto tokens = Tokenizer::Split(line, ' ');
-                Float2 uv;
-                uv.a = std::stof(tokens[1]);
-                uv.b = std::stof(tokens[2]);
-
-                uvs.push_back(uv);
-            }
-            else if(line.starts_with(NORMAL_PREFIX))
-            {
-                auto tokens = Tokenizer::Split(line, ' ');
-                Float3 normal;
-                normal.a = std::stof(tokens[1]);
-                normal.b = std::stof(tokens[2]);
-                normal.c = std::stof(tokens[3]);
-
-                normals.push_back(normal);
-            }
-            else if(line.starts_with(FACE_PREFIX))
-            {
-                Triangle t;
-                // get pointer to first triangle struct field
-                Vertex* currVertex = &t.v1;
-                auto spacedTokens = Tokenizer::Split(line, ' ');
-                for(size_t i = 1; i < spacedTokens.size(); ++i)
-                {
-                    auto tabbedTokens = Tokenizer::Split(spacedTokens[i], '/');
-                    size_t vertexIndex = std::stoi(tabbedTokens[0]);
-                    size_t uvIndex = std::stoi(tabbedTokens[1]);
-                    size_t normalIndex = std::stoi(tabbedTokens[2]);
-
-                    Vertex v{vertexes[vertexIndex - 1], normals[normalIndex - 1], uvs[uvIndex - 1]};
-                    // assign currVertex and increment ptr
-                    *currVertex++ = v;
-                }
-
-                outObj.triangles.push_back(t);
-            }
-        }
-
-        return true;
-    }
-
-private:
+    bool TryParseObj(const std::string& objPath, Obj& outObj);
 
 };
+
+#ifdef OBJPARSER_IMPLEMENTATION
+
+bool ObjParser::TryParseObj(const std::string& objPath, Obj& outObj)
+{
+    std::ifstream file(objPath);
+    if(!file.is_open()) return false;
+
+    std::vector<Float3> vertexes;
+    std::vector<Float2> uvs;
+    std::vector<Float3> normals;
+
+    std::string line;
+
+    while(std::getline(file, line))
+    {
+        if(line.starts_with(VERTEX_PREFIX))
+        {
+            auto tokens = Tokenizer::Split(line, ' ');
+            Float3 v;
+            v.a = std::stof(tokens[1]);
+            v.b = std::stof(tokens[2]);
+            v.c = std::stof(tokens[3]);
+
+            vertexes.push_back(v);
+        }
+        else if(line.starts_with(UV_PREFIX))
+        {
+            auto tokens = Tokenizer::Split(line, ' ');
+            Float2 uv;
+            uv.a = std::stof(tokens[1]);
+            uv.b = std::stof(tokens[2]);
+
+            uvs.push_back(uv);
+        }
+        else if(line.starts_with(NORMAL_PREFIX))
+        {
+            auto tokens = Tokenizer::Split(line, ' ');
+            Float3 normal;
+            normal.a = std::stof(tokens[1]);
+            normal.b = std::stof(tokens[2]);
+            normal.c = std::stof(tokens[3]);
+
+            normals.push_back(normal);
+        }
+        else if(line.starts_with(FACE_PREFIX))
+        {
+            Triangle t;
+            // get pointer to first triangle struct field
+            Vertex* currVertex = &t.v1;
+            auto spacedTokens = Tokenizer::Split(line, ' ');
+            for(size_t i = 1; i < spacedTokens.size(); ++i)
+            {
+                auto tabbedTokens = Tokenizer::Split(spacedTokens[i], '/');
+                size_t vertexIndex = std::stoi(tabbedTokens[0]);
+                size_t uvIndex = std::stoi(tabbedTokens[1]);
+                size_t normalIndex = std::stoi(tabbedTokens[2]);
+
+                Vertex v{vertexes[vertexIndex - 1], normals[normalIndex - 1], uvs[uvIndex - 1]};
+                // assign currVertex and increment ptr
+                *currVertex++ = v;
+            }
+
+            outObj.triangles.push_back(t);
+        }
+    }
+
+    return true;
+}
+
+bool Float3::operator==(const Float3& other) const
+{
+    return a == other.a && b == other.b && c == other.c; 
+}
+
+bool Float2::operator==(const Float2& other) const
+{
+    return a == other.a && b == other.b;
+}
+
+bool Vertex::operator==(const Vertex& other) const
+{
+    return position == other.position && normal == other.normal && uv == other.uv;
+}
+
+bool Triangle::operator==(const Triangle& other) const 
+{
+    return v1 == other.v1 && v2 == other.v2 && v3 == other.v3;
+}
+
+#endif

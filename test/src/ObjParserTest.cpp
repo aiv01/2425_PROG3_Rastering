@@ -1,5 +1,6 @@
 #define CLOVE_SUITE_NAME ObjParserTest
 #include "clove-unit.h"
+#define OBJPARSER_IMPLEMENTATION
 #include "ObjParser.h"
 
 CLOVE_TEST(TokenizerWithFourTokens) {

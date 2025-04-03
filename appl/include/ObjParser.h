@@ -66,10 +66,17 @@ public:
         std::vector<Float3> points;
         std::vector<Float2> uvs;
         std::vector<Float3> normals;
-        while(std::getline(file, line)) {
-            if(line.starts_with("v "))
+        while(std::getline(file, line)) 
+        {
+            if (line.empty()) continue;
+            auto tokens = Tokenizer::Split(line, ' ');
+            if (tokens.empty()) continue;
+            const std::string& type = tokens[0];
+
+            if(type == "v")
             {
-                auto tokens = Tokenizer::Split(line, ' ');
+                if(tokens.size() != 4) return false;
+
                 Float3 v;
 
                 v.x = std::stof(tokens[1]);
@@ -77,18 +84,20 @@ public:
                 v.z = std::stof(tokens[3]);
                 points.push_back(v);
             }
-            if(line.starts_with("vt "))
+            else if(type == "vt")
             {
-                auto tokens = Tokenizer::Split(line, ' ');
+                if(tokens.size() != 4) return false;
+
                 Float2 vt;
 
                 vt.x = std::stof(tokens[1]);
                 vt.y = std::stof(tokens[2]);
                 uvs.push_back(vt);
             }
-            if(line.starts_with("vn "))
+            else if(type == "vn")
             {
-                auto tokens = Tokenizer::Split(line, ' ');
+                if(tokens.size() != 4) return false;
+
                 Float3 vn;
 
                 vn.x = std::stof(tokens[1]);
@@ -96,26 +105,33 @@ public:
                 vn.z = std::stof(tokens[3]);
                 normals.push_back(vn);
             }
-            if(line.starts_with("f "))
+            else if(type == "f")
             {
-                auto spacedTokens = Tokenizer::Split(line, ' ');
+                if(tokens.size() != 4) return false;
+                
                 Triangle triangle;
-                for(size_t i=1; i<=3; ++i)
+                Vertex* vertexPointers[] = { &triangle.v1, &triangle.v2, &triangle.v3 };
+                for(size_t i = 0; i < 3; ++i)
                 {
-                    auto tokens = Tokenizer::Split(spacedTokens[i], '/');
-                    int pointIndex = std::stoi(tokens[0]);
-                    int uvIndex = std::stoi(tokens[1]);
-                    int normalIndex = std::stoi(tokens[2]);
-                    Vertex v;
-                    v.point = points[pointIndex - 1];
-                    v.uv = uvs[uvIndex - 1];
-                    v.normal = normals[normalIndex - 1];
+                    auto faceTokens = Tokenizer::Split(tokens[i + 1], '/');
+
+                    int pointIndex = std::stoi(faceTokens[0]) - 1;
+                    if (pointIndex < 0 || pointIndex >= points.size()) return false;
+                    int uvIndex = std::stoi(faceTokens[1]) - 1;
+                    if(uvIndex < 0 || uvIndex >= uvs.size()) return false;
+                    int normalIndex = std::stoi(faceTokens[2]) - 1;
+                    if(normalIndex < 0 || normalIndex >= normals.size()) return false;
+
+                    vertexPointers[i]->point = points[pointIndex];
+                    vertexPointers[i]->uv = uvs[uvIndex];
+                    vertexPointers[i]->normal = normals[normalIndex];
                 }
+
                 outObj.triangles.push_back(triangle);
             }
 
         }
-        return false;
+        return !outObj.triangles.empty();
     }
 
 private:

@@ -79,9 +79,16 @@ public:
 
                 Float3 v;
 
-                v.x = std::stof(tokens[1]);
-                v.y = std::stof(tokens[2]);
-                v.z = std::stof(tokens[3]);
+                try{
+
+                    v.x = std::stof(tokens[1]);
+                    v.y = std::stof(tokens[2]);
+                    v.z = std::stof(tokens[3]);
+
+                } catch (const std::exception&){
+
+                    return ParserError(outObj);
+                }
                 points.push_back(v);
             }
             else if(type == "vt")
@@ -89,9 +96,15 @@ public:
                 if(tokens.size() != 3) return ParserError(outObj);
 
                 Float2 vt;
+                try{
 
-                vt.x = std::stof(tokens[1]);
-                vt.y = std::stof(tokens[2]);
+                    vt.x = std::stof(tokens[1]);
+                    vt.y = std::stof(tokens[2]);
+
+                } catch (const std::exception&){
+
+                    return ParserError(outObj);
+                }
                 uvs.push_back(vt);
             }
             else if(type == "vn")
@@ -99,10 +112,16 @@ public:
                 if(tokens.size() != 4) return ParserError(outObj);
 
                 Float3 vn;
+                try{
 
-                vn.x = std::stof(tokens[1]);
-                vn.y = std::stof(tokens[2]);
-                vn.z = std::stof(tokens[3]);
+                    vn.x = std::stof(tokens[1]);
+                    vn.y = std::stof(tokens[2]);
+                    vn.z = std::stof(tokens[3]);
+
+                } catch (const std::exception&){
+
+                    return ParserError(outObj);
+                }
                 normals.push_back(vn);
             }
             else if(type == "f")
@@ -114,17 +133,24 @@ public:
                 for(size_t i = 0; i < 3; ++i)
                 {
                     auto faceTokens = Tokenizer::Split(tokens[i + 1], '/');
+                    try{
 
-                    int pointIndex = std::stoi(faceTokens[0]) - 1;
-                    if (pointIndex < 0 || pointIndex >= points.size()) return ParserError(outObj);
-                    int uvIndex = std::stoi(faceTokens[1]) - 1;
-                    if(uvIndex < 0 || uvIndex >= uvs.size()) return ParserError(outObj);
-                    int normalIndex = std::stoi(faceTokens[2]) - 1;
-                    if(normalIndex < 0 || normalIndex >= normals.size())return ParserError(outObj);
+                        int pointIndex = std::stoi(faceTokens[0]) - 1;
+                        if (pointIndex < 0 || pointIndex >= points.size()) return ParserError(outObj);
+                        int uvIndex = std::stoi(faceTokens[1]) - 1;
+                        if(uvIndex < 0 || uvIndex >= uvs.size()) return ParserError(outObj);
+                        int normalIndex = std::stoi(faceTokens[2]) - 1;
+                        if(normalIndex < 0 || normalIndex >= normals.size())return ParserError(outObj);
 
-                    vertexPointers[i]->point = points[pointIndex];
-                    vertexPointers[i]->uv = uvs[uvIndex];
-                    vertexPointers[i]->normal = normals[normalIndex];
+                        vertexPointers[i]->point = points[pointIndex];
+                        vertexPointers[i]->uv = uvs[uvIndex];
+                        vertexPointers[i]->normal = normals[normalIndex];
+                        
+                    } catch (const std::exception&){
+
+                        return ParserError(outObj);
+                    }
+
                 }
 
                 outObj.triangles.push_back(triangle);

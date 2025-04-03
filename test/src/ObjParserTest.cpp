@@ -13,10 +13,6 @@ CLOVE_TEST(TokenizerWithFourTokens) {
    CLOVE_STRING_EQ(tokens[1].c_str(), "-1.000000");
    CLOVE_STRING_EQ(tokens[2].c_str(), "1.000000");
    CLOVE_STRING_EQ(tokens[3].c_str(), "0.000000");
-<<<<<<< Updated upstream
-
-   CLOVE_PASS();
-=======
 }
 
 CLOVE_TEST(Float3EqualsWithDifferentFloat3)
@@ -202,5 +198,4 @@ CLOVE_TEST(ObjParserWithCorrectPath)
 
    CLOVE_IS_TRUE(t1 == obj.triangles[0]);
    CLOVE_IS_TRUE(t2 == obj.triangles[1]);
->>>>>>> Stashed changes
 }

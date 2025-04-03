@@ -3,8 +3,6 @@
 #include <fstream>
 #include <vector>
 
-<<<<<<< Updated upstream
-=======
 #define VERTEX_PREFIX "v "
 #define UV_PREFIX "vt "
 #define NORMAL_PREFIX "vn "
@@ -33,7 +31,6 @@ struct Float2
     }
 };
 
->>>>>>> Stashed changes
 class Tokenizer
 {
 public:
@@ -52,11 +49,6 @@ public:
     }
 };
 
-<<<<<<< Updated upstream
-struct Obj
-{
-
-=======
 struct Vertex
 {
     Float3 position;
@@ -84,7 +76,6 @@ struct Triangle
 struct Obj
 {
     std::vector<Triangle> triangles;
->>>>>>> Stashed changes
 };
 
 class ObjParser
@@ -95,18 +86,6 @@ public:
         std::ifstream file(objPath);
         if(!file.is_open()) return false;
 
-<<<<<<< Updated upstream
-        std::string line;
-        while(std::getline(file, line))
-        {
-            if(line.starts_with("v "))
-            {
-
-            }
-        }
-
-        return false;
-=======
         std::vector<Float3> vertexes;
         std::vector<Float2> uvs;
         std::vector<Float3> normals;
@@ -167,7 +146,6 @@ public:
         }
 
         return true;
->>>>>>> Stashed changes
     }
 
 private:

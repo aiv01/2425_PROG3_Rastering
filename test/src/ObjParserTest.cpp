@@ -17,7 +17,6 @@ CLOVE_TEST(ParseQuadObj){
    Obj obj;
    std::string objPath = "test/resources/quad.obj";
     
-   // Verifica se il file esiste nel percorso specificato
    CLOVE_IS_TRUE(std::filesystem::exists(objPath));
 
    bool result = parser.TryParseObj(objPath, obj);
@@ -113,7 +112,6 @@ CLOVE_TEST(FileDoesNotExist)
    bool result = parser.TryParseObj("non_existent_file.obj", obj);
 
    CLOVE_IS_FALSE(result);
-   CLOVE_SIZET_EQ(0, obj.triangles.size());
 
 }
 
@@ -125,7 +123,6 @@ CLOVE_TEST(EmptyFile)
    bool result = parser.TryParseObj(objPath, obj); 
 
    CLOVE_IS_FALSE(result);
-   CLOVE_SIZET_EQ(0, obj.triangles.size());
 }
 
 CLOVE_TEST(WrongFile)
@@ -136,7 +133,6 @@ CLOVE_TEST(WrongFile)
 
    bool result = parser.TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
-   CLOVE_SIZET_EQ(0, obj.triangles.size());
 }
 
 CLOVE_TEST(MissingNormals)
@@ -145,9 +141,8 @@ CLOVE_TEST(MissingNormals)
    Obj obj;
    std::string objPath = "test/resources/missingNormals.obj";
 
-   bool result = parser.TryParseObj(objPath, obj); // facce che fanno riferimento a normali, ma non ci sono dichiarazioni 'vn'
+   bool result = parser.TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
-   CLOVE_SIZET_EQ(0, obj.triangles.size());
 }
 
 CLOVE_TEST(WrongFace)
@@ -158,5 +153,4 @@ CLOVE_TEST(WrongFace)
 
    bool result = parser.TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
-   CLOVE_SIZET_EQ(0, obj.triangles.size());
 }

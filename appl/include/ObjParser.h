@@ -61,7 +61,7 @@ public:
     bool TryParseObj(const std::string& objPath, Obj& outObj)
     {
         std::ifstream file(objPath);
-        if (!file.is_open()) ParserError(outObj);
+        if (!file.is_open()) return false;
         std::string line;
         std::vector<Float3> points;
         std::vector<Float2> uvs;
@@ -75,7 +75,7 @@ public:
 
             if(type == "v")
             {
-                if(tokens.size() != 4) return ParserError(outObj);
+                if(tokens.size() != 4) return false;
 
                 Float3 v;
 
@@ -87,13 +87,13 @@ public:
 
                 } catch (const std::exception&){
 
-                    return ParserError(outObj);
+                    return false;
                 }
                 points.push_back(v);
             }
             else if(type == "vt")
             {
-                if(tokens.size() != 3) return ParserError(outObj);
+                if(tokens.size() != 3) return false;
 
                 Float2 vt;
                 try{
@@ -103,13 +103,13 @@ public:
 
                 } catch (const std::exception&){
 
-                    return ParserError(outObj);
+                    return false;
                 }
                 uvs.push_back(vt);
             }
             else if(type == "vn")
             {
-                if(tokens.size() != 4) return ParserError(outObj);
+                if(tokens.size() != 4) return false;
 
                 Float3 vn;
                 try{
@@ -120,13 +120,13 @@ public:
 
                 } catch (const std::exception&){
 
-                    return ParserError(outObj);
+                    return false;
                 }
                 normals.push_back(vn);
             }
             else if(type == "f")
             {
-                if(tokens.size() != 4) return ParserError(outObj);
+                if(tokens.size() != 4) return false;
 
                 Triangle triangle;
                 Vertex* vertexPointers[] = { &triangle.v1, &triangle.v2, &triangle.v3 };
@@ -136,11 +136,11 @@ public:
                     try{
 
                         int pointIndex = std::stoi(faceTokens[0]) - 1;
-                        if (pointIndex < 0 || pointIndex >= points.size()) return ParserError(outObj);
+                        if (pointIndex < 0 || pointIndex >= points.size()) return false;
                         int uvIndex = std::stoi(faceTokens[1]) - 1;
-                        if(uvIndex < 0 || uvIndex >= uvs.size()) return ParserError(outObj);
+                        if(uvIndex < 0 || uvIndex >= uvs.size()) return false;
                         int normalIndex = std::stoi(faceTokens[2]) - 1;
-                        if(normalIndex < 0 || normalIndex >= normals.size())return ParserError(outObj);
+                        if(normalIndex < 0 || normalIndex >= normals.size())return false;
 
                         vertexPointers[i]->point = points[pointIndex];
                         vertexPointers[i]->uv = uvs[uvIndex];
@@ -148,7 +148,7 @@ public:
                         
                     } catch (const std::exception&){
 
-                        return ParserError(outObj);
+                        return false;
                     }
 
                 }
@@ -162,11 +162,4 @@ public:
 
 private:
 
-    bool ParserError(Obj& objToClear)
-    {
-
-        objToClear.triangles.clear();
-        return false;
-
-    }
 };

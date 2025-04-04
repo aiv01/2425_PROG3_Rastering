@@ -3,7 +3,6 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include "Maths.h"
 
 constexpr const char* points_prefix = "v ";
 constexpr const char* uvs_prefix = "vt ";
@@ -13,12 +12,27 @@ constexpr const char white_space = ' ';
 constexpr const char front_slash = '/';
 constexpr uint16_t vertexes_of_triangle = 3;
 
+// (x, y)
+struct Float2
+{
+    float x;
+    float y;
+};
+
+// (x, y, z)
+struct Float3
+{
+    float x;
+    float y;
+    float z;
+};
+
 /// @brief Vertex structure, with a point (x, y, z), an uv (x, y) and a normal (x, y, z).
 struct Vertex
 {
-    Vector3f point;
-    Vector2f uv;
-    Vector3f normal;
+    Float3 point;
+    Float2 uv;
+    Float3 normal;
 };
 
 /// @brief Triangle structure, with three vertexes.
@@ -37,8 +51,6 @@ struct Obj
 
 class Tokenizer;
 class ObjParser;
-
-#ifdef OBJPARSER_IMPLEMENTATION
 
 class Tokenizer
 {
@@ -69,9 +81,9 @@ public:
         std::ifstream file(file_path);
         if (!file.is_open()) return false;
 
-        std::vector<Vector3f> points; // v
-        std::vector<Vector2f> uvs; // vt
-        std::vector<Vector3f> normals; // vn
+        std::vector<Float3> points; // v
+        std::vector<Float2> uvs; // vt
+        std::vector<Float3> normals; // vn
 
         std::string line;
         while (std::getline(file, line))
@@ -80,7 +92,7 @@ public:
             {
                 auto tokens = Tokenizer::split(line, white_space);
                 
-                Vector3f v;
+                Float3 v;
                 v.x = std::stof(tokens[1]);
                 v.y = std::stof(tokens[2]);
                 v.z = std::stof(tokens[3]);
@@ -91,7 +103,7 @@ public:
             {
                 auto tokens = Tokenizer::split(line, white_space);
 
-                Vector2f vt;
+                Float2 vt;
                 vt.x = std::stof(tokens[1]);
                 vt.y = std::stof(tokens[2]);
 
@@ -101,7 +113,7 @@ public:
             {
                 auto tokens = Tokenizer::split(line, white_space);
 
-                Vector3f vn;
+                Float3 vn;
                 vn.x = std::stof(tokens[1]);
                 vn.y = std::stof(tokens[2]);
                 vn.z = std::stof(tokens[3]);
@@ -128,8 +140,8 @@ public:
                     vertex.uv = uvs[uv_index - 1];
                     vertex.normal = normals[normal_index - 1];
 
-                    std::memcpy(reinterpret_cast<Vertex*>(&triangle) + index, &vertex, sizeof(Vertex));
-                    // Alternative: Triangle { std::array<Vertex, 3> triangles; }
+                    auto* vertex_ptr = reinterpret_cast<Vertex*>(&triangle) + index;
+                    *vertex_ptr = vertex;
                 }
 
                 obj_out.triangles.push_back(triangle);
@@ -140,5 +152,3 @@ public:
     }
 
 };
-
-#endif // OBJPARSER_IMPLEMENTATION

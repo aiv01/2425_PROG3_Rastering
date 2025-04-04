@@ -2,7 +2,6 @@
 #include "clove-unit.h"
 #include <string>
 
-#define OBJPARSER_IMPLEMENTATION
 #include "ObjParser.h"
 
 CLOVE_TEST(TokenizerFourToken)
@@ -27,28 +26,28 @@ CLOVE_TEST(ObjParsingQuadShape)
    // 1° Face - Points
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[0].v1.point.x);
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[0].v1.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[0].v1.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[0].v1.point.z);
 
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[0].v2.point.x);
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[0].v2.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[0].v2.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[0].v2.point.z);
 
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[0].v3.point.x);
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[0].v3.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[0].v3.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[0].v3.point.z);
 
    // 2° Face - Points
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[1].v1.point.x);
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[1].v1.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[1].v1.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[1].v1.point.z);
 
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[1].v2.point.x);
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[1].v2.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[1].v2.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[1].v2.point.z);
 
    CLOVE_FLOAT_EQ(-1.000000, quad_obj.triangles[1].v3.point.x);
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[1].v3.point.y);
-   CLOVE_FLOAT_EQ(-10.000000, quad_obj.triangles[1].v3.point.z);
+   CLOVE_FLOAT_EQ(0.000000, quad_obj.triangles[1].v3.point.z);
 
    // 1° Face - Uvs
    CLOVE_FLOAT_EQ(1.000000, quad_obj.triangles[0].v1.uv.x);

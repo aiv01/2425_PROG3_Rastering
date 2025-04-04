@@ -157,9 +157,6 @@ CLOVE_TEST(ObjParserWithCorrectPath)
    // read successful
    CLOVE_IS_TRUE(objParser.TryParseObj(objPath, obj)); 
 
-   // triangles vector not empty
-   CLOVE_INT_NE(obj.triangles.size(), 0);
-
    // expected size 2
    CLOVE_INT_EQ(obj.triangles.size(), 2);
 
@@ -197,6 +194,78 @@ CLOVE_TEST(ObjParserWithCorrectPath)
    Triangle t1{t1_v1, t1_v2, t1_v3};
    Triangle t2{t2_v1, t2_v2, t2_v3};
 
-   CLOVE_IS_TRUE(t1 == obj.triangles[0]);
-   CLOVE_IS_TRUE(t2 == obj.triangles[1]);
+   // triangle 1
+   //    vertex 1
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.position.a, pos_t1_v1.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.position.b, pos_t1_v1.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.position.c, pos_t1_v1.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.uv.a, uv_t1_v1.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v1.uv.b, uv_t1_v1.b);
+   //    vertex 2
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.position.a, pos_t1_v2.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.position.b, pos_t1_v2.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.position.c, pos_t1_v2.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.uv.a, uv_t1_v2.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v2.uv.b, uv_t1_v2.b);
+   //    vertex 3
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.position.a, pos_t1_v3.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.position.b, pos_t1_v3.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.position.c, pos_t1_v3.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.uv.a, uv_t1_v3.a);
+   CLOVE_FLOAT_EQ(obj.triangles[0].v3.uv.b, uv_t1_v3.b);
+   // triangle 2
+   //    vertex 1
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.position.a, pos_t2_v1.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.position.b, pos_t2_v1.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.position.c, pos_t2_v1.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.uv.a, uv_t2_v1.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v1.uv.b, uv_t2_v1.b);
+   //    vertex 2
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.position.a, pos_t2_v2.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.position.b, pos_t2_v2.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.position.c, pos_t2_v2.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.uv.a, uv_t2_v2.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v2.uv.b, uv_t2_v2.b);
+   //    vertex 3
+   //       position
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.position.a, pos_t2_v3.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.position.b, pos_t2_v3.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.position.c, pos_t2_v3.c);
+   //       normal
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.normal.a, vn.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.normal.b, vn.b);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.normal.c, vn.c);
+   //       uv
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.uv.a, uv_t2_v3.a);
+   CLOVE_FLOAT_EQ(obj.triangles[1].v3.uv.b, uv_t2_v3.b);
 }

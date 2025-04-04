@@ -13,13 +13,12 @@ CLOVE_TEST(Tokenizer4Token) {
 }
 
 CLOVE_TEST(ParseQuadObj){
-   ObjParser parser;
    Obj obj;
    std::string objPath = "test/resources/quad.obj";
     
    CLOVE_IS_TRUE(std::filesystem::exists(objPath));
 
-   bool result = parser.TryParseObj(objPath, obj);
+   bool result = ObjParser::TryParseObj(objPath, obj);
 
    CLOVE_IS_TRUE(result);
    
@@ -107,9 +106,8 @@ CLOVE_TEST(ParseQuadObj){
 
 CLOVE_TEST(FileDoesNotExist)
 {
-   ObjParser parser;
    Obj obj;
-   bool result = parser.TryParseObj("non_existent_file.obj", obj);
+   bool result = ObjParser::TryParseObj("non_existent_file.obj", obj);
 
    CLOVE_IS_FALSE(result);
 
@@ -117,40 +115,36 @@ CLOVE_TEST(FileDoesNotExist)
 
 CLOVE_TEST(EmptyFile)
 {
-   ObjParser parser;
    Obj obj;
    std::string objPath = "test/resources/empty.obj";
-   bool result = parser.TryParseObj(objPath, obj); 
+   bool result = ObjParser::TryParseObj(objPath, obj); 
 
    CLOVE_IS_FALSE(result);
 }
 
 CLOVE_TEST(WrongFile)
 {
-   ObjParser parser;
    Obj obj;
    std::string objPath = "test/resources/wrong.obj";
 
-   bool result = parser.TryParseObj(objPath, obj);
+   bool result = ObjParser::TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
 }
 
 CLOVE_TEST(MissingNormals)
 {
-   ObjParser parser;
    Obj obj;
    std::string objPath = "test/resources/missingNormals.obj";
 
-   bool result = parser.TryParseObj(objPath, obj);
+   bool result = ObjParser::TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
 }
 
 CLOVE_TEST(WrongFace)
 {
-   ObjParser parser;
    Obj obj;
    std::string objPath = "test/resources/wrongFace.obj";
 
-   bool result = parser.TryParseObj(objPath, obj);
+   bool result = ObjParser::TryParseObj(objPath, obj);
    CLOVE_IS_FALSE(result);
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#define PI 3.14159265359
+
 struct Vector2i {
     int x;
     int y;
@@ -11,6 +13,8 @@ struct Vector3f {
     float z;
 
     Vector3f operator-(const Vector3f& other) const;
+    Vector3f rotate_y(float angle) const;
+    Vector3f operator*(float scalar) const;
 };
 
 /// @brief Get the min value among the 3 values.

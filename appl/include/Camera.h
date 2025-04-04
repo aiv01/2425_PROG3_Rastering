@@ -2,8 +2,6 @@
 #include "Maths.h"
 #include <cmath>
 
-#define PI 3.14159265359
-
 class Camera {
 public:
     Camera(int screen_witdh, int screen_height, float fov);

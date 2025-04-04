@@ -58,7 +58,9 @@ struct Obj
 class ObjParser
 {
 public:
-    bool TryParseObj(const std::string& objPath, Obj& outObj)
+    ObjParser() = delete;
+
+    static bool TryParseObj(const std::string& objPath, Obj& outObj)
     {
         std::ifstream file(objPath);
         if (!file.is_open()) return false;
@@ -159,7 +161,4 @@ public:
         }
         return !outObj.triangles.empty();
     }
-
-private:
-
 };

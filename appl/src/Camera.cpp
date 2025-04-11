@@ -30,3 +30,9 @@ Vector2i Camera::world_to_screen_space(Vector3f world_point) {
 
     return {screen_x, screen_y};
 }
+
+Vector3f Camera::world_to_camera_space(const Vector3f& world_point) const 
+{
+    Vector3f camera_point = world_point - _position;
+    return camera_point;
+}

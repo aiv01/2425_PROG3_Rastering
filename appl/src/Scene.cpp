@@ -7,9 +7,13 @@
 #include <iostream>
 #include "ObjParser.h"
 #include "ScanlineAlgo.h"
+#include "Texture.h"
+
 
 Obj _quad;
 Obj _suzanne;
+
+Texture* smile_texture;
 
 Scene::Scene(int w, int h, SDL_Renderer* r) 
     : _renderer(r), 
@@ -18,6 +22,8 @@ Scene::Scene(int w, int h, SDL_Renderer* r)
 { 
     ObjParser::TryParseObj("bin/appl/resources/quad.obj", _quad);
     ObjParser::TryParseObj("bin/appl/resources/suzanne.obj", _suzanne);
+
+    smile_texture = Texture::load_from_file("bin/appl/resources/smile.png");
 }
 
 void draw_quad(Camera& camera, Screen& screen) {
@@ -63,9 +69,9 @@ void draw_suzanne(Camera& camera, Screen& screen, float delta_time, bool wirefra
         wp2 = wp2.rotate_y(rotation);
         wp3 = wp3.rotate_y(rotation);
 
-        wp1.z = -5;
-        wp2.z = -5;
-        wp3.z = -5;        
+        wp1.z -= 5;
+        wp2.z -= 5;
+        wp3.z -= 5;        
 
         Vector2i sp1 = camera.world_to_screen_space(wp1);
         Vector2i sp2 = camera.world_to_screen_space(wp2);
@@ -104,27 +110,84 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
         wp2 = wp2.rotate_y(rotation);
         wp3 = wp3.rotate_y(rotation);
 
-        wp1.z = -5;
-        wp2.z = -5;
-        wp3.z = -5;        
+        wp1.z -= 5;
+        wp2.z -= 5;
+        wp3.z -= 5;        
 
         Vector2i sp1 = camera.world_to_screen_space(wp1);
         Vector2i sp2 = camera.world_to_screen_space(wp2);
         Vector2i sp3 = camera.world_to_screen_space(wp3);
         
+        Vector3f cp1 = camera.world_to_camera_space(wp1);
+        Vector3f cp2 = camera.world_to_camera_space(wp2);
+        Vector3f cp3 = camera.world_to_camera_space(wp3);
+
         GpuVertex v1;
         v1.screen_pos = sp1;
         v1.color = Color{255, 0, 0, 255};
+        v1.z_pos = cp1.z;
 
         GpuVertex v2;
         v2.screen_pos = sp2;
         v2.color = Color{0, 255, 0, 255};
+        v2.z_pos = cp2.z;
 
         GpuVertex v3;
         v3.screen_pos = sp3;
         v3.color = Color{0, 0, 255, 255};
+        v3.z_pos = cp3.z;
 
         ScanlineAlgo::rasterize(v1, v2, v3, screen);
+    }
+}
+
+void draw_quad_texturized(Camera& camera, Screen& screen) {
+
+    VGpu gpu;
+    gpu.texture = smile_texture;
+
+    for(int i=0; i < _quad.triangles.size(); ++i) {
+        auto& triangle = _quad.triangles[i];
+
+        Vector3f& lp1 = reinterpret_cast<Vector3f&>(triangle.v1.point);
+        Vector3f& lp2 = reinterpret_cast<Vector3f&>(triangle.v2.point);
+        Vector3f& lp3 = reinterpret_cast<Vector3f&>(triangle.v3.point);
+
+        Vector3f wp1 = lp1;
+        Vector3f wp2 = lp2;
+        Vector3f wp3 = lp3;
+
+        wp1.z -= 4;
+        wp2.z -= 4;
+        wp3.z -= 4;
+
+        Vector2i sp1 = camera.world_to_screen_space(wp1);
+        Vector2i sp2 = camera.world_to_screen_space(wp2);
+        Vector2i sp3 = camera.world_to_screen_space(wp3);
+        
+        Vector3f cp1 = camera.world_to_camera_space(wp1);
+        Vector3f cp2 = camera.world_to_camera_space(wp2);
+        Vector3f cp3 = camera.world_to_camera_space(wp3);
+
+        GpuVertex v1;
+        v1.screen_pos = sp1;
+        //v1.color = Color{255, 0, 0, 255};
+        v1.z_pos = cp1.z;
+        v1.uv = Vector2f(triangle.v1.uv.x, triangle.v1.uv.y);
+
+        GpuVertex v2;
+        v2.screen_pos = sp2;
+        //v2.color = Color{0, 255, 0, 255};
+        v2.z_pos = cp2.z;
+        v2.uv = Vector2f(triangle.v2.uv.x, triangle.v2.uv.y);
+
+        GpuVertex v3;
+        v3.screen_pos = sp3;
+        //v3.color = Color{0, 0, 255, 255};
+        v3.z_pos = cp3.z;
+        v3.uv = Vector2f(triangle.v3.uv.x, triangle.v3.uv.y);
+
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
     }
 }
 

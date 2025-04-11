@@ -91,14 +91,14 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
     for(int i=0; i < _suzanne.triangles.size(); ++i) {
         auto& triangle = _suzanne.triangles[i];
 
-        Vector3f* lp1 = (Vector3f*)&(triangle.v1.point);
-        Vector3f* lp2 = (Vector3f*)&(triangle.v2.point);
-        Vector3f* lp3 = (Vector3f*)&(triangle.v3.point);
+        Vector3f& lp1 = reinterpret_cast<Vector3f&>(triangle.v1.point);
+        Vector3f& lp2 = reinterpret_cast<Vector3f&>(triangle.v2.point);
+        Vector3f& lp3 = reinterpret_cast<Vector3f&>(triangle.v3.point);
 
         //scale -> rotate -> translate
-        Vector3f wp1 = *lp1 * 2;
-        Vector3f wp2 = *lp2 * 2;
-        Vector3f wp3 = *lp3 * 2;
+        Vector3f wp1 = lp1 * 2;
+        Vector3f wp2 = lp2 * 2;
+        Vector3f wp3 = lp3 * 2;
 
         wp1 = wp1.rotate_y(rotation);
         wp2 = wp2.rotate_y(rotation);
@@ -112,7 +112,19 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
         Vector2i sp2 = camera.world_to_screen_space(wp2);
         Vector2i sp3 = camera.world_to_screen_space(wp3);
         
-        ScanlineAlgo::rasterize(sp1, sp2, sp3, screen);
+        GpuVertex v1;
+        v1.screen_pos = sp1;
+        v1.color = Color{255, 0, 0, 255};
+
+        GpuVertex v2;
+        v2.screen_pos = sp2;
+        v2.color = Color{0, 255, 0, 255};
+
+        GpuVertex v3;
+        v3.screen_pos = sp3;
+        v3.color = Color{0, 0, 255, 255};
+
+        ScanlineAlgo::rasterize(v1, v2, v3, screen);
     }
 }
 

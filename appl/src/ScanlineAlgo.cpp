@@ -2,40 +2,10 @@
 #include <array>
 #include <algorithm>
 
-
-float interpolate_scalar(float a, float b, float gradient) 
-{
-    return a + gradient * (b - a);
-}
-
-float interpolate_scalar(int a, int b, float gradient) 
-{
-    return static_cast<float>(a) + gradient * static_cast<float>(b - a);
-}
-
-Color interpolate_color(Color& a, Color& b, float gradient) 
-{
-    Color result;
-    result.r = static_cast<uint8_t>(interpolate_scalar(a.r, b.r, gradient));
-    result.g = static_cast<uint8_t>(interpolate_scalar(a.g, b.g, gradient));
-    result.b = static_cast<uint8_t>(interpolate_scalar(a.b, b.b, gradient));
-    result.a = static_cast<uint8_t>(interpolate_scalar(a.a, b.a, gradient));
-    return result;
-}
-
-Vector2f interpolate_vector2f(Vector2f& a, Vector2f& b, float gradient) 
-{
-    Vector2f result;
-    result.x = interpolate_scalar(a.x, b.x, gradient);
-    result.y = interpolate_scalar(a.y, b.y, gradient);
-    return result;
-}
-
-
 void rasterize_row(VGpu& gpu, int y, 
         GpuVertex& left_edge_v1, GpuVertex& left_edge_v2,
         GpuVertex& right_edge_v1, GpuVertex& right_edge_v2,
-        Screen& screen) 
+        Screen& screen, PaintingMode painting_mode) 
 {
     auto& left_edge_sp1 = left_edge_v1.screen_pos;
     auto& left_edge_sp2 = left_edge_v2.screen_pos;
@@ -58,16 +28,29 @@ void rasterize_row(VGpu& gpu, int y,
     int left_x = (int) ((float)left_edge_sp1.x + left_gradient_y * (float)(left_edge_sp2.x - left_edge_sp1.x) ) ;
     int right_x = (int) ((float)right_edge_sp1.x + right_gradient_y * (float)(right_edge_sp2.x - right_edge_sp1.x) ) ;
 
-    Color left_color = interpolate_color(left_edge_v1.color, left_edge_v2.color, left_gradient_y);
-    Color right_color = interpolate_color(right_edge_v1.color, right_edge_v2.color, right_gradient_y);
+    float left_z = interpolate(left_edge_v1.z_pos, left_edge_v2.z_pos, left_gradient_y);
+    float right_z = interpolate(right_edge_v1.z_pos, right_edge_v2.z_pos, right_gradient_y);
 
-    float left_z = interpolate_scalar(left_edge_v1.z_pos, left_edge_v2.z_pos, left_gradient_y);
-    float right_z = interpolate_scalar(right_edge_v1.z_pos, right_edge_v2.z_pos, right_gradient_y);
+    Color left_color, right_color;
+    Vector2f left_uv, right_uv;
 
+    if (painting_mode & PaintingMode::COLOR)
+    {
+        left_color = interpolate(left_edge_v1.color, left_edge_v2.color, left_gradient_y);
+        right_color = interpolate(right_edge_v1.color, right_edge_v2.color, right_gradient_y);
+    }
 
-    Vector2f left_uv = interpolate_vector2f(left_edge_v1.uv, left_edge_v2.uv, left_gradient_y);
-    Vector2f right_uv = interpolate_vector2f(right_edge_v1.uv, right_edge_v2.uv, right_gradient_y);
+    if (painting_mode & PaintingMode::TEXTURE)
+    {
+        // Flipped UVs.
+        Vector2f left_edge_v1_inverse_uv = { left_edge_v1.uv.x, 1 - left_edge_v1.uv.y };
+        Vector2f left_edge_v2_inverse_uv = { left_edge_v2.uv.x, 1 - left_edge_v2.uv.y };
+        Vector2f right_edge_v1_inverse_uv = { right_edge_v1.uv.x, 1 - right_edge_v1.uv.y };
+        Vector2f right_edge_v2_inverse_uv = { right_edge_v2.uv.x, 1 - right_edge_v2.uv.y };
 
+        left_uv = interpolate(left_edge_v1_inverse_uv, left_edge_v2_inverse_uv, left_gradient_y);
+        right_uv = interpolate(right_edge_v1_inverse_uv, right_edge_v2_inverse_uv, right_gradient_y);
+    }
 
     for(int x = left_x; x <= right_x; ++x) 
     {
@@ -77,27 +60,63 @@ void rasterize_row(VGpu& gpu, int y,
             gradient_x = static_cast<float>(x - left_x) / static_cast<float>(right_x - left_x);
         }
 
-        Color sampled_color = interpolate_color(left_color, right_color, gradient_x);
-        float sample_z = interpolate_scalar(left_z, right_z, gradient_x);
-        Vector2f sample_uv = interpolate_vector2f(left_uv, right_uv, gradient_x);
+        float sample_z = interpolate(left_z, right_z, gradient_x);
+        Color sampled_color;
 
+        switch (painting_mode)
+        {
+            case PaintingMode::COLOR:
+            {
+                sampled_color = interpolate(left_color, right_color, gradient_x);
+                break;
+            }
+            case PaintingMode::TEXTURE:
+            {
+                Vector2f sample_uv = interpolate(left_uv, right_uv, gradient_x);
+                Texture* texture = gpu.texture;
+            
+                // Out of bounds!
+                // int text_x = texture->width * sample_uv.x;
+                // int text_y = texture->height * sample_uv.y;
+                int text_x = (texture->width - 1) * sample_uv.x;
+                int text_y = (texture->height - 1) * sample_uv.y;
 
-        Texture* texture = gpu.texture;
+                int text_index = (text_y * texture->width + text_x) * texture->pixel_size;
 
-        int text_x = texture->width * sample_uv.x;
-        int text_y = texture->height * sample_uv.y;
+                sampled_color.r = texture->pixels[text_index + 0];
+                sampled_color.g = texture->pixels[text_index + 1];
+                sampled_color.b = texture->pixels[text_index + 2];
+                sampled_color.a = texture->pixels[text_index + 3];
+                break;
+            }
+            case PaintingMode::BLEND:
+                Color sampled_color_to_blend = interpolate(left_color, right_color, gradient_x);
 
-        int text_index = (text_y * texture->width + text_x) * texture->pixel_size;
-        sampled_color.r = texture->pixels[text_index + 0];
-        sampled_color.g = texture->pixels[text_index + 1];
-        sampled_color.b = texture->pixels[text_index + 2];
-        sampled_color.a = texture->pixels[text_index + 3];
+                Vector2f sample_uv = interpolate(left_uv, right_uv, gradient_x);
+                Texture* texture = gpu.texture;
+
+                // Out of bounds!
+                // int text_x = texture->width * sample_uv.x;
+                // int text_y = texture->height * sample_uv.y;
+                int text_x = (texture->width - 1) * sample_uv.x;
+                int text_y = (texture->height - 1) * sample_uv.y;
+            
+                int text_index = (text_y * texture->width + text_x) * texture->pixel_size;
+
+                // Lerping.
+                sampled_color.r = texture->pixels[text_index + 0] + 0.5f * (sampled_color_to_blend.r - texture->pixels[text_index + 0]);
+                sampled_color.g = texture->pixels[text_index + 1] + 0.5f * (sampled_color_to_blend.g - texture->pixels[text_index + 1]);
+                sampled_color.b = texture->pixels[text_index + 2] + 0.5f * (sampled_color_to_blend.b - texture->pixels[text_index + 2]);
+                sampled_color.a = texture->pixels[text_index + 3] + 0.5f * (sampled_color_to_blend.a - texture->pixels[text_index + 3]);
+
+                break;
+        }
 
         screen.put_pixel(x, y, sample_z, sampled_color);
     }
 }
 
-void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex& v3, Screen& screen)
+void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex& v3, Screen& screen, PaintingMode painting_mode)
 {
     std::array<std::reference_wrapper<GpuVertex>, 3> points = {v1, v2, v3};
     std::sort(points.begin(), points.end(), [](const GpuVertex& v1, const GpuVertex& v2) {
@@ -120,20 +139,20 @@ void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex&
         for (int y = p1s.y; y <= p3s.y; ++y) 
         {
             if (y < p2s.y) {
-                rasterize_row(gpu, y, v1s,v2s, v1s,v3s, screen);
+                rasterize_row(gpu, y, v1s,v2s, v1s,v3s, screen, painting_mode);
             } 
             else {
-                rasterize_row(gpu, y, v2s,v3s, v1s,v3s, screen);
+                rasterize_row(gpu, y, v2s,v3s, v1s,v3s, screen, painting_mode);
             }
         }
     } else { // |>
         for (int y = p1s.y; y <= p3s.y; ++y) 
         {
             if (y < p2s.y) {
-                rasterize_row(gpu, y, v1s,v3s, v1s,v2s, screen);
+                rasterize_row(gpu, y, v1s,v3s, v1s,v2s, screen, painting_mode);
             } 
             else {
-                rasterize_row(gpu, y, v1s,v3s, v2s,v3s, screen);
+                rasterize_row(gpu, y, v1s,v3s, v2s,v3s, screen, painting_mode);
             }
         }
     }

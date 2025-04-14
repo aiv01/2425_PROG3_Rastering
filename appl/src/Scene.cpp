@@ -9,7 +9,6 @@
 #include "ScanlineAlgo.h"
 #include "Texture.h"
 
-
 Obj _quad;
 Obj _suzanne;
 
@@ -94,6 +93,9 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
     static float rotation = 0.f;
     rotation += 10.f * delta_time;
 
+    VGpu gpu;
+    gpu.texture = smile_texture;
+
     for(int i=0; i < _suzanne.triangles.size(); ++i) {
         auto& triangle = _suzanne.triangles[i];
 
@@ -137,7 +139,7 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
         v3.color = Color{0, 0, 255, 255};
         v3.z_pos = cp3.z;
 
-        ScanlineAlgo::rasterize(v1, v2, v3, screen);
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen, PaintingMode::TEXTURE);
     }
 }
 
@@ -171,23 +173,23 @@ void draw_quad_texturized(Camera& camera, Screen& screen) {
 
         GpuVertex v1;
         v1.screen_pos = sp1;
-        //v1.color = Color{255, 0, 0, 255};
+        v1.color = Color{255, 0, 0, 255};
         v1.z_pos = cp1.z;
         v1.uv = Vector2f(triangle.v1.uv.x, triangle.v1.uv.y);
 
         GpuVertex v2;
         v2.screen_pos = sp2;
-        //v2.color = Color{0, 255, 0, 255};
+        v2.color = Color{0, 255, 0, 255};
         v2.z_pos = cp2.z;
         v2.uv = Vector2f(triangle.v2.uv.x, triangle.v2.uv.y);
 
         GpuVertex v3;
         v3.screen_pos = sp3;
-        //v3.color = Color{0, 0, 255, 255};
+        v3.color = Color{0, 0, 255, 255};
         v3.z_pos = cp3.z;
         v3.uv = Vector2f(triangle.v3.uv.x, triangle.v3.uv.y);
 
-        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen, PaintingMode::TEXTURE);
     }
 }
 
@@ -239,7 +241,9 @@ void Scene::update(float delta_time)
 
     //draw_suzanne(_camera, _screen, delta_time, true);
 
-    draw_suzanne_scanline(_camera, _screen, delta_time);
+    //draw_suzanne_scanline(_camera, _screen, delta_time);
+
+    draw_quad_texturized(_camera, _screen);
 
     _screen.blit();
 }

@@ -139,7 +139,7 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
         v3.color = Color{0, 0, 255, 255};
         v3.z_pos = cp3.z;
 
-        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen, PaintingMode::TEXTURE);
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
     }
 }
 
@@ -147,6 +147,7 @@ void draw_quad_texturized(Camera& camera, Screen& screen) {
 
     VGpu gpu;
     gpu.texture = smile_texture;
+    gpu.painting_mode = PaintingMode::BLEND;
 
     for(int i=0; i < _quad.triangles.size(); ++i) {
         auto& triangle = _quad.triangles[i];
@@ -189,7 +190,7 @@ void draw_quad_texturized(Camera& camera, Screen& screen) {
         v3.z_pos = cp3.z;
         v3.uv = Vector2f(triangle.v3.uv.x, triangle.v3.uv.y);
 
-        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen, PaintingMode::TEXTURE);
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
     }
 }
 

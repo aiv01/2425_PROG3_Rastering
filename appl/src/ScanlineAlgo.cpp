@@ -5,7 +5,7 @@
 void rasterize_row(VGpu& gpu, int y, 
         GpuVertex& left_edge_v1, GpuVertex& left_edge_v2,
         GpuVertex& right_edge_v1, GpuVertex& right_edge_v2,
-        Screen& screen, PaintingMode painting_mode) 
+        Screen& screen) 
 {
     auto& left_edge_sp1 = left_edge_v1.screen_pos;
     auto& left_edge_sp2 = left_edge_v2.screen_pos;
@@ -34,13 +34,13 @@ void rasterize_row(VGpu& gpu, int y,
     Color left_color, right_color;
     Vector2f left_uv, right_uv;
 
-    if (painting_mode & PaintingMode::COLOR)
+    if (gpu.painting_mode & PaintingMode::COLOR)
     {
         left_color = interpolate(left_edge_v1.color, left_edge_v2.color, left_gradient_y);
         right_color = interpolate(right_edge_v1.color, right_edge_v2.color, right_gradient_y);
     }
 
-    if (painting_mode & PaintingMode::TEXTURE)
+    if (gpu.painting_mode & PaintingMode::TEXTURE)
     {
         // Flipped UVs.
         Vector2f left_edge_v1_inverse_uv = { left_edge_v1.uv.x, 1 - left_edge_v1.uv.y };
@@ -63,7 +63,7 @@ void rasterize_row(VGpu& gpu, int y,
         float sample_z = interpolate(left_z, right_z, gradient_x);
         Color sampled_color;
 
-        switch (painting_mode)
+        switch (gpu.painting_mode)
         {
             case PaintingMode::COLOR:
             {
@@ -116,7 +116,7 @@ void rasterize_row(VGpu& gpu, int y,
     }
 }
 
-void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex& v3, Screen& screen, PaintingMode painting_mode)
+void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex& v3, Screen& screen)
 {
     std::array<std::reference_wrapper<GpuVertex>, 3> points = {v1, v2, v3};
     std::sort(points.begin(), points.end(), [](const GpuVertex& v1, const GpuVertex& v2) {
@@ -139,20 +139,20 @@ void ScanlineAlgo::rasterize(VGpu& gpu, GpuVertex& v1, GpuVertex& v2, GpuVertex&
         for (int y = p1s.y; y <= p3s.y; ++y) 
         {
             if (y < p2s.y) {
-                rasterize_row(gpu, y, v1s,v2s, v1s,v3s, screen, painting_mode);
+                rasterize_row(gpu, y, v1s,v2s, v1s,v3s, screen);
             } 
             else {
-                rasterize_row(gpu, y, v2s,v3s, v1s,v3s, screen, painting_mode);
+                rasterize_row(gpu, y, v2s,v3s, v1s,v3s, screen);
             }
         }
     } else { // |>
         for (int y = p1s.y; y <= p3s.y; ++y) 
         {
             if (y < p2s.y) {
-                rasterize_row(gpu, y, v1s,v3s, v1s,v2s, screen, painting_mode);
+                rasterize_row(gpu, y, v1s,v3s, v1s,v2s, screen);
             } 
             else {
-                rasterize_row(gpu, y, v1s,v3s, v2s,v3s, screen, painting_mode);
+                rasterize_row(gpu, y, v1s,v3s, v2s,v3s, screen);
             }
         }
     }

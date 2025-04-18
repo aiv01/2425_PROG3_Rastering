@@ -8,15 +8,17 @@
 #include <type_traits>
 
 enum PaintingMode : uint8_t
-{
-    COLOR = 1 << 0, // 0001 
-    TEXTURE = 1 << 1, // 0010
-    BLEND = COLOR | TEXTURE // 0011
-};
+    {
+        COLOR = 1 << 0, // 0001 
+        TEXTURE = 1 << 1, // 0010
+        BLEND = COLOR | TEXTURE // 0011
+    };
 
 class VGpu {
 public:
     Texture* texture;
+    PaintingMode painting_mode = PaintingMode::COLOR;
+    
 };   
 
 struct GpuVertex
@@ -29,7 +31,7 @@ struct GpuVertex
 
 class ScanlineAlgo {
 public:
-    static void rasterize(VGpu& gpu, GpuVertex& p1, GpuVertex& p2, GpuVertex& p3, Screen& screen, PaintingMode painting_mode);
+    static void rasterize(VGpu& gpu, GpuVertex& p1, GpuVertex& p2, GpuVertex& p3, Screen& screen);
 };
 
 // -------------------------------------------------------------------------------------------------------

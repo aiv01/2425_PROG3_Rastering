@@ -58,16 +58,23 @@ void rasterize_row(VGpu& gpu, int y,
     int left_x = (int) ((float)left_edge_sp1.x + left_gradient_y * (float)(left_edge_sp2.x - left_edge_sp1.x) ) ;
     int right_x = (int) ((float)right_edge_sp1.x + right_gradient_y * (float)(right_edge_sp2.x - right_edge_sp1.x) ) ;
 
-    Color left_color = interpolate_color(left_edge_v1.color, left_edge_v2.color, left_gradient_y);
-    Color right_color = interpolate_color(right_edge_v1.color, right_edge_v2.color, right_gradient_y);
-
     float left_z = interpolate_scalar(left_edge_v1.z_pos, left_edge_v2.z_pos, left_gradient_y);
     float right_z = interpolate_scalar(right_edge_v1.z_pos, right_edge_v2.z_pos, right_gradient_y);
-
-
-    Vector2f left_uv = interpolate_vector2f(left_edge_v1.uv, left_edge_v2.uv, left_gradient_y);
-    Vector2f right_uv = interpolate_vector2f(right_edge_v1.uv, right_edge_v2.uv, right_gradient_y);
-
+    
+    Color left_color; 
+    Color right_color;
+    Vector2f left_uv;
+    Vector2f right_uv;
+    if (gpu.blend_mode == BlendMode::COLOR) 
+    {
+        left_color = interpolate_color(left_edge_v1.color, left_edge_v2.color, left_gradient_y);
+        right_color = interpolate_color(right_edge_v1.color, right_edge_v2.color, right_gradient_y);
+    }
+    else if (gpu.blend_mode == BlendMode::TEXTURE) 
+    {
+        left_uv = interpolate_vector2f(left_edge_v1.uv, left_edge_v2.uv, left_gradient_y);
+        right_uv = interpolate_vector2f(right_edge_v1.uv, right_edge_v2.uv, right_gradient_y);
+    }
 
     for(int x = left_x; x <= right_x; ++x) 
     {
@@ -76,22 +83,29 @@ void rasterize_row(VGpu& gpu, int y,
         {
             gradient_x = static_cast<float>(x - left_x) / static_cast<float>(right_x - left_x);
         }
-
-        Color sampled_color = interpolate_color(left_color, right_color, gradient_x);
+        
         float sample_z = interpolate_scalar(left_z, right_z, gradient_x);
-        Vector2f sample_uv = interpolate_vector2f(left_uv, right_uv, gradient_x);
+        
+        Color sampled_color = {0, 0, 0, 0};
 
+        if (gpu.blend_mode == BlendMode::COLOR) 
+        {
+            sampled_color = interpolate_color(left_color, right_color, gradient_x);
+        }
+        else if (gpu.blend_mode == BlendMode::TEXTURE)
+        { 
+            Vector2f sample_uv = interpolate_vector2f(left_uv, right_uv, gradient_x);
+            Texture* texture = gpu.texture;
 
-        Texture* texture = gpu.texture;
+            int text_x = static_cast<int>(static_cast<float>(texture->width) * sample_uv.x);
+            int text_y = static_cast<int>(static_cast<float>(texture->height) * (1.f - sample_uv.y));
 
-        int text_x = texture->width * sample_uv.x;
-        int text_y = texture->height * sample_uv.y;
-
-        int text_index = (text_y * texture->width + text_x) * texture->pixel_size;
-        sampled_color.r = texture->pixels[text_index + 0];
-        sampled_color.g = texture->pixels[text_index + 1];
-        sampled_color.b = texture->pixels[text_index + 2];
-        sampled_color.a = texture->pixels[text_index + 3];
+            int text_index = (text_y * texture->width + text_x) * texture->pixel_size;
+            sampled_color.r = texture->pixels[text_index + 0];
+            sampled_color.g = texture->pixels[text_index + 1];
+            sampled_color.b = texture->pixels[text_index + 2];
+            sampled_color.a = texture->pixels[text_index + 3];
+        }
 
         screen.put_pixel(x, y, sample_z, sampled_color);
     }

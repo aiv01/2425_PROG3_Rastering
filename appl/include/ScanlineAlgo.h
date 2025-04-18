@@ -6,8 +6,15 @@
 
 #include "Texture.h"
 
+enum BlendMode {
+    NO_BLEND,
+    COLOR,
+    TEXTURE
+};
+
 class VGpu {
 public:
+    BlendMode blend_mode;
     Texture* texture;
 };   
 

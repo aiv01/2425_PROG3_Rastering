@@ -9,7 +9,7 @@ public:
     void put_pixel(int x, int y, Color c);
     void put_pixel(int x, int y, float z, Color c);
     void blit();
-    void clear();
+    void clear(Color color = {0, 0, 0, 0});
     void destroy();
 private:
     std::vector<Color> _color_buffer;

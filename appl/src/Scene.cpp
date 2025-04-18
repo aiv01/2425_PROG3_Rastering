@@ -12,8 +12,10 @@
 
 Obj _quad;
 Obj _suzanne;
+Obj _trup;
 
-Texture* smile_texture;
+Texture* _smile_texture;
+Texture* _trup_texture;
 
 Scene::Scene(int w, int h, SDL_Renderer* r) 
     : _renderer(r), 
@@ -22,8 +24,10 @@ Scene::Scene(int w, int h, SDL_Renderer* r)
 { 
     ObjParser::TryParseObj("bin/appl/resources/quad.obj", _quad);
     ObjParser::TryParseObj("bin/appl/resources/suzanne.obj", _suzanne);
+    ObjParser::TryParseObj("bin/appl/resources/stormtrooper.obj", _trup);
 
-    smile_texture = Texture::load_from_file("bin/appl/resources/smile.png");
+    _smile_texture = Texture::load_from_file("bin/appl/resources/smile.png");
+    _trup_texture = Texture::load_from_file("bin/appl/resources/stormtrooper.png");
 }
 
 void draw_quad(Camera& camera, Screen& screen) {
@@ -91,6 +95,9 @@ void draw_suzanne(Camera& camera, Screen& screen, float delta_time, bool wirefra
 
 void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
 
+    VGpu gpu;
+    gpu.blend_mode = BlendMode::COLOR;
+
     static float rotation = 0.f;
     rotation += 10.f * delta_time;
 
@@ -137,14 +144,15 @@ void draw_suzanne_scanline(Camera& camera, Screen& screen, float delta_time) {
         v3.color = Color{0, 0, 255, 255};
         v3.z_pos = cp3.z;
 
-        ScanlineAlgo::rasterize(v1, v2, v3, screen);
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
     }
 }
 
 void draw_quad_texturized(Camera& camera, Screen& screen) {
 
     VGpu gpu;
-    gpu.texture = smile_texture;
+    gpu.blend_mode = BlendMode::TEXTURE;
+    gpu.texture = _smile_texture;
 
     for(int i=0; i < _quad.triangles.size(); ++i) {
         auto& triangle = _quad.triangles[i];
@@ -191,10 +199,69 @@ void draw_quad_texturized(Camera& camera, Screen& screen) {
     }
 }
 
+void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
+
+    VGpu gpu;
+    gpu.blend_mode = BlendMode::TEXTURE;
+    gpu.texture = _trup_texture;
+
+    static float rotation = 0.f;
+    rotation += 10.f * delta_time;
+
+    for(int i=0; i < _trup.triangles.size(); ++i) {
+        auto& triangle = _trup.triangles[i];
+
+        Vector3f& lp1 = reinterpret_cast<Vector3f&>(triangle.v1.point);
+        Vector3f& lp2 = reinterpret_cast<Vector3f&>(triangle.v2.point);
+        Vector3f& lp3 = reinterpret_cast<Vector3f&>(triangle.v3.point);
+
+        //scale -> rotate -> translate
+        float scale = 1.f;
+        Vector3f wp1 = lp1 * scale;
+        Vector3f wp2 = lp2 * scale;
+        Vector3f wp3 = lp3 * scale;
+
+        wp1 = wp1.rotate_y(rotation);
+        wp2 = wp2.rotate_y(rotation);
+        wp3 = wp3.rotate_y(rotation);
+
+        static Vector3f transl = {0.f, 2.f, 4.f};
+
+        wp1 = wp1 - transl;
+        wp2 = wp2 - transl;
+        wp3 = wp3 - transl;
+
+        Vector2i sp1 = camera.world_to_screen_space(wp1);
+        Vector2i sp2 = camera.world_to_screen_space(wp2);
+        Vector2i sp3 = camera.world_to_screen_space(wp3);
+        
+        Vector3f cp1 = camera.world_to_camera_space(wp1);
+        Vector3f cp2 = camera.world_to_camera_space(wp2);
+        Vector3f cp3 = camera.world_to_camera_space(wp3);
+
+        GpuVertex v1;
+        v1.screen_pos = sp1;
+        v1.z_pos = cp1.z;
+        v1.uv = Vector2f(triangle.v1.uv.x, triangle.v1.uv.y);
+
+        GpuVertex v2;
+        v2.screen_pos = sp2;
+        v2.z_pos = cp2.z;
+        v2.uv = Vector2f(triangle.v2.uv.x, triangle.v2.uv.y);
+
+        GpuVertex v3;
+        v3.screen_pos = sp3;
+        v3.z_pos = cp3.z;
+        v3.uv = Vector2f(triangle.v3.uv.x, triangle.v3.uv.y);
+
+        ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
+    }
+}
+
 
 void Scene::update(float delta_time) 
-{ 
-    _screen.clear();
+{   
+    _screen.clear({128, 128, 128, 255});
     /*
     static float x1 = 50;
     static float y1 = 50;
@@ -239,7 +306,10 @@ void Scene::update(float delta_time)
 
     //draw_suzanne(_camera, _screen, delta_time, true);
 
-    draw_suzanne_scanline(_camera, _screen, delta_time);
+    //draw_suzanne_scanline(_camera, _screen, delta_time);
+    //draw_quad_texturized(_camera, _screen);
+
+    draw_trup_texturized(_camera, _screen, delta_time);
 
     _screen.blit();
 }

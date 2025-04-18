@@ -38,10 +38,9 @@ void Screen::blit()
 }
 
 
-void Screen::clear() 
+void Screen::clear(Color color) 
 {
-    Color black{0, 0, 0, 0};
-    std::fill(_color_buffer.begin(), _color_buffer.end(), black);
+    std::fill(_color_buffer.begin(), _color_buffer.end(), color);
     std::fill(_depth_buffer.begin(), _depth_buffer.end(), std::numeric_limits<float>().lowest());
 
     /*

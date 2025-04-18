@@ -204,6 +204,8 @@ void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
     VGpu gpu;
     gpu.blend_mode = BlendMode::TEXTURE;
     gpu.texture = _trup_texture;
+    gpu.point_light_pos = {3.f, 0.f, -4.f};
+    gpu.camera_pos = camera._position;
 
     static float rotation = 0.f;
     rotation += 10.f * delta_time;
@@ -231,6 +233,16 @@ void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
         wp2 = wp2 - transl;
         wp3 = wp3 - transl;
 
+        //Compute world normal
+        Vector3f ln1 = Vector3f(triangle.v1.normal.x, triangle.v1.normal.y, triangle.v1.normal.z);
+        Vector3f ln2 = Vector3f(triangle.v2.normal.x, triangle.v2.normal.y, triangle.v2.normal.z);
+        Vector3f ln3 = Vector3f(triangle.v3.normal.x, triangle.v3.normal.y, triangle.v3.normal.z);
+
+        Vector3f wn1 = ln1.rotate_y(rotation);
+        Vector3f wn2 = ln2.rotate_y(rotation);
+        Vector3f wn3 = ln3.rotate_y(rotation);
+
+
         Vector2i sp1 = camera.world_to_screen_space(wp1);
         Vector2i sp2 = camera.world_to_screen_space(wp2);
         Vector2i sp3 = camera.world_to_screen_space(wp3);
@@ -243,16 +255,22 @@ void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
         v1.screen_pos = sp1;
         v1.z_pos = cp1.z;
         v1.uv = Vector2f(triangle.v1.uv.x, triangle.v1.uv.y);
+        v1.world_norm = wn1;
+        v1.world_pos = wp1;
 
         GpuVertex v2;
         v2.screen_pos = sp2;
         v2.z_pos = cp2.z;
         v2.uv = Vector2f(triangle.v2.uv.x, triangle.v2.uv.y);
-
+        v2.world_norm = wn2;
+        v2.world_pos = wp2;
+        
         GpuVertex v3;
         v3.screen_pos = sp3;
         v3.z_pos = cp3.z;
         v3.uv = Vector2f(triangle.v3.uv.x, triangle.v3.uv.y);
+        v3.world_norm = wn3;
+        v3.world_pos = wp3;
 
         ScanlineAlgo::rasterize(gpu, v1, v2, v3, screen);
     }

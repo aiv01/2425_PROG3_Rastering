@@ -40,3 +40,27 @@ Vector3f Vector3f::rotate_y(float angle) const {
 Vector3f Vector3f::operator*(float scalar) const {
     return Vector3f{x * scalar, y * scalar, z * scalar};
 }
+
+void Vector3f::normalize() 
+{
+    float magn = magnitude();
+    x /= magn;
+    y /= magn;
+    z /= magn;
+}
+
+float Vector3f::dot(const Vector3f& other) const 
+{
+    return x * other.x + y * other.y + z * other.z;
+}
+
+float Vector3f::magnitude() const {
+    return sqrtf(dot(*this));
+}
+
+Vector3f Vector3f::reflect(const Vector3f& normal) const 
+{
+    //R = I – 2 * dot(I,N) * N
+    return *this - normal * (2.f * dot(normal));
+
+}

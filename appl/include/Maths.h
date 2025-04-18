@@ -20,6 +20,10 @@ struct Vector3f {
     Vector3f operator-(const Vector3f& other) const;
     Vector3f rotate_y(float angle) const;
     Vector3f operator*(float scalar) const;
+    void normalize();
+    float dot(const Vector3f& other) const;
+    float magnitude() const;
+    Vector3f reflect(const Vector3f& normal) const;
 };
 
 /// @brief Get the min value among the 3 values.

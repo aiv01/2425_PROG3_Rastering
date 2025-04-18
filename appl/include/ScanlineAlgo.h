@@ -16,6 +16,8 @@ class VGpu {
 public:
     BlendMode blend_mode;
     Texture* texture;
+    Vector3f point_light_pos;
+    Vector3f camera_pos;
 };   
 
 struct GpuVertex
@@ -24,6 +26,8 @@ struct GpuVertex
     Color color;
     float z_pos;
     Vector2f uv;
+    Vector3f world_norm;
+    Vector3f world_pos;
 };
 
 

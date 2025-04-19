@@ -227,7 +227,7 @@ void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
         wp2 = wp2.rotate_y(rotation);
         wp3 = wp3.rotate_y(rotation);
 
-        static Vector3f transl = {0.f, 2.f, 4.f};
+        static Vector3f transl = {0.f, 0.f, 4.f};
 
         wp1 = wp1 - transl;
         wp2 = wp2 - transl;
@@ -250,6 +250,12 @@ void draw_trup_texturized(Camera& camera, Screen& screen, float delta_time) {
         Vector3f cp1 = camera.world_to_camera_space(wp1);
         Vector3f cp2 = camera.world_to_camera_space(wp2);
         Vector3f cp3 = camera.world_to_camera_space(wp3);
+
+        //frustrum culling
+        if (camera.is_frustrum_culled(sp1, cp1.z, sp2, cp2.z, sp3, cp3.z)) continue;
+        
+        //face culling
+        if (camera.is_face_culled(cp1, cp2, cp3)) continue;
 
         GpuVertex v1;
         v1.screen_pos = sp1;

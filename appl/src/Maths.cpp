@@ -62,5 +62,13 @@ Vector3f Vector3f::reflect(const Vector3f& normal) const
 {
     //R = I – 2 * dot(I,N) * N
     return *this - normal * (2.f * dot(normal));
+}
 
+Vector3f Vector3f::cross(const Vector3f& other) const 
+{
+    Vector3f r;
+    r.x = y * other.z - z * other.y;
+    r.y = z * other.x - x * other.z;
+    r.z = x * other.y - y * other.x;
+    return r;
 }

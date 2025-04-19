@@ -24,6 +24,7 @@ struct Vector3f {
     float dot(const Vector3f& other) const;
     float magnitude() const;
     Vector3f reflect(const Vector3f& normal) const;
+    Vector3f cross(const Vector3f& other) const;
 };
 
 /// @brief Get the min value among the 3 values.
